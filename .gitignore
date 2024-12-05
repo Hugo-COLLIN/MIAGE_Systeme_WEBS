@@ -1,2 +1,12 @@
+# IntelliJ
 .idea
 *.iml
+
+# Python and Flask
+venv/
+*.o
+__pycache__/
+*.pyc
+
+# Compiled files
+daemon
