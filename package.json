@@ -1,0 +1,13 @@
+{
+  "name": "miage_systeme_webs",
+  "authors": "Hugo COLLIN, Chloé MAYER, Anikati M'MADI",
+  "version": "1.0.0",
+  "homepage": "https://github.com/Hugo-COLLIN/MIAGE_Systeme_WEBS#readme",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.3",
+    "jquery": "^3.7.1"
+  }
+}
