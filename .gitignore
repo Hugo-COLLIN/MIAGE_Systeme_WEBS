@@ -11,5 +11,8 @@ __pycache__/
 # Compiled files
 daemon
 
+# NPM
+node_modules
+
 # Data
 sensor/
