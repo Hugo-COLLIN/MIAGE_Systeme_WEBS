@@ -35,6 +35,11 @@ sudo apt upgrade -y
     sudo apt install build-essential cmake
     ```
 
+    - NPM
+    ```sh
+    sudo apt install npm
+    ```
+
 - Avoir installé Git, [avoir initialisé sa clé SSH liée à GitHub](https://gist.github.com/Hugo-COLLIN/456fd191689c11a59e76a66d3ad887d8) puis cloner le dépôt :
 ```sh
 git clone git@github.com:Hugo-COLLIN/MIAGE_Systeme_WEBS.git
@@ -56,4 +61,9 @@ pip install -r requirements.txt
 4. Compiler le deamon via le Makefile :
 ```sh
 make
+```
+
+5. Installer les dépendances NPM :
+```sh
+npm i
 ```
