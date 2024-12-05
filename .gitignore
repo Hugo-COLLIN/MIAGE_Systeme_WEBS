@@ -10,3 +10,6 @@ __pycache__/
 
 # Compiled files
 daemon
+
+# Data
+sensor/
