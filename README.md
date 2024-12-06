@@ -57,3 +57,13 @@ pip install -r requirements.txt
 ```sh
 make
 ```
+
+### 2. Lancer l'application
+1. Avoir compilé le daemon avec `make`
+
+2. Lancer :
+```sh
+python3 run.py
+```
+
+3. Ouvrir le navigateur à l'url indiquée
