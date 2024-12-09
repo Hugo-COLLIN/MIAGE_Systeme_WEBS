@@ -6,7 +6,7 @@ TODO
 
 ## Guide de démarrage
 ### 0. Préparation générale
-- Avoir son environnement à jour
+1. Avoir son environnement à jour
 ```sh
 # Mettre à jour le gestionnaire de paquets
 sudo apt update
@@ -18,10 +18,15 @@ sudo apt --fix-broken install
 sudo apt upgrade -y
 ```
 
-- Installer les outils de base :
+2. Installer les outils de base :
+    - Git
+    ```sh
+    sudo apt install git
+    ```
+    
     - Python
     ```sh
-    # Installer Python en utilisant le PPA deadsnakes
+    # Installer Python (en utilisant le PPA deadsnakes)
     sudo add-apt-repository ppa:deadsnakes/ppa -y
     sudo apt update
     sudo apt install python3.10-dev python3.10-venv python3.10-distutils -y
@@ -35,7 +40,9 @@ sudo apt upgrade -y
     sudo apt install build-essential cmake
     ```
 
-- Avoir installé Git, [avoir initialisé sa clé SSH liée à GitHub](https://gist.github.com/Hugo-COLLIN/456fd191689c11a59e76a66d3ad887d8) puis cloner le dépôt :
+3. [Initialiser sa clé SSH liée à GitHub](https://gist.github.com/Hugo-COLLIN/456fd191689c11a59e76a66d3ad887d8)
+
+4. Cloner le dépôt :
 ```sh
 git clone git@github.com:Hugo-COLLIN/MIAGE_Systeme_WEBS.git
 ```
