@@ -1,30 +1,30 @@
-const eventSources = {};
+let eventSources = [];
 
-function startStreaming(patientNumber) {
-    const patientId = $(`#patientId${patientNumber}`).val();
-    const activityId = $(`#activityId${patientNumber}`).val();
+function startMultiStreaming() {
+    stopAllStreams();
     
-    // Fermer la source d'événements existante pour ce patient si elle existe
-    if (eventSources[patientNumber]) {
-        eventSources[patientNumber].close();
-    }
-    
-    // Créer une nouvelle source d'événements
+    const patient1Id = $('.patient1-id').val();
+    const patient1Activity = $('.patient1-activity').val();
+    const patient2Id = $('.patient2-id').val();
+    const patient2Activity = $('.patient2-activity').val();
+
+    $('#data-container-1').empty();
+    $('#data-container-2').empty();
+
+    startPatientStream(patient1Id, patient1Activity, 1);
+    startPatientStream(patient2Id, patient2Activity, 2);
+}
+
+function startPatientStream(patientId, activityId, containerNum) {
     const eventSource = new EventSource(`/data/${patientId}/${activityId}`);
-    eventSources[patientNumber] = eventSource;
+    eventSources.push(eventSource);
     
-    // Vider le conteneur précédent
-    $(`#data-container${patientNumber}`).empty();
-    
-    // Gérer les messages pour ce patient
     eventSource.onmessage = function(event) {
-        $(`#data-container${patientNumber}`).append(`<p>${event.data}</p>`);
+        $(`#data-container-${containerNum}`).append(`<p>${event.data}</p>`);
     };
-    
-    // Gestion des erreurs
-    eventSource.onerror = function(error) {
-        console.error(`Erreur pour le patient ${patientNumber}:`, error);
-        $(`#data-container${patientNumber}`).append(`<p class="text-danger">Erreur de connexion</p>`);
-        eventSource.close();
-    };
+}
+
+function stopAllStreams() {
+    eventSources.forEach(es => es.close());
+    eventSources = [];
 }

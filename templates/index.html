@@ -5,32 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WEBS - Visualisation de données</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap/dist/css/bootstrap.min.css">
+    <style>
+        .patient-container {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
     <div class="container mt-5">
         <h1>Données de Santé en Temps Réel</h1>
+        <div class="patient-inputs mb-4">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="patient-container">
+                        <h3>Patient 1</h3>
+                        <label>Patient ID:</label>
+                        <input type="number" class="patient1-id" value="1">
+                        <label>Activité:</label>
+                        <input type="number" class="patient1-activity" value="0">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="patient-container">
+                        <h3>Patient 2</h3>
+                        <label>Patient ID:</label>
+                        <input type="number" class="patient2-id" value="2">
+                        <label>Activité:</label>
+                        <input type="number" class="patient2-activity" value="0">
+                    </div>
+                </div>
+            </div>
+            <button onclick="startMultiStreaming()" class="btn btn-primary mt-3">Démarrer la visualisation</button>
+        </div>
         <div class="row">
             <div class="col-md-6">
-                <h3>Patient 1</h3>
-                <div>
-                    <label>Patient ID:</label>
-                    <input type="number" id="patientId1" value="1">
-                    <label>Activité:</label>
-                    <input type="number" id="activityId1" value="0">
-                    <button onclick="startStreaming(1)">Démarrer</button>
-                </div>
-                <div id="data-container1" class="mt-3"></div>
+                <div id="data-container-1" class="patient-container"></div>
             </div>
             <div class="col-md-6">
-                <h3>Patient 2</h3>
-                <div>
-                    <label>Patient ID:</label>
-                    <input type="number" id="patientId2" value="2">
-                    <label>Activité:</label>
-                    <input type="number" id="activityId2" value="0">
-                    <button onclick="startStreaming(2)">Démarrer</button>
-                </div>
-                <div id="data-container2" class="mt-3"></div>
+                <div id="data-container-2" class="patient-container"></div>
             </div>
         </div>
     </div>
