@@ -20,7 +20,7 @@ def stream_data(patient_id, activity):
             bufsize=1,
             preexec_fn=os.setpgrp
         )
-
+        
         def generate():
             try:
                 while True:
@@ -35,14 +35,11 @@ def stream_data(patient_id, activity):
                     os.killpg(os.getpgid(process.pid), signal.SIGTERM)
                 except Exception:
                     pass
-
+        
         return Response(stream_with_context(generate()), mimetype='text/event-stream')
-
+    
     except subprocess.SubprocessError as e:
         return f"Erreur lors de l'exécution du daemon : {e}", 500
-
-    except subprocess.SubprocessError as e:
-        return f"Error running daemon: {e}", 500
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0')
