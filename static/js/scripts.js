@@ -1,8 +1,16 @@
 let eventSources = {};
 let patientCounter = 0;
+const sensorTypes = ['alx', 'aly', 'alz', 'glx', 'gly', 'glz'];
 
 function createPatientPanel() {
     patientCounter++;
+    let sensorCheckboxes = sensorTypes.map(sensor => 
+        `<div class="form-check form-check-inline">
+            <input class="form-check-input sensor-checkbox" type="checkbox" id="${sensor}-${patientCounter}" value="${sensor}" checked>
+            <label class="form-check-label" for="${sensor}-${patientCounter}">${sensor}</label>
+        </div>`
+    ).join('');
+
     return `
         <div class="patient-container" id="patient-panel-${patientCounter}">
             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -14,6 +22,9 @@ function createPatientPanel() {
                 <input type="number" class="form-control patient-id" value="${patientCounter}">
                 <label>Activité:</label>
                 <input type="number" class="form-control activity-id" value="0">
+            </div>
+            <div class="sensor-checkboxes mb-3">
+                ${sensorCheckboxes}
             </div>
             <div class="mb-3">
                 <button onclick="startPatientStream(${patientCounter})" class="btn btn-success btn-sm">Démarrer</button>
@@ -30,7 +41,7 @@ function addPatientPanel() {
 
 function removePatientPanel(patientNum) {
     stopPatientStream(patientNum);
-    $(`#patient-panel-${patientNum}`).remove();
+    $(`#patient-panel-${patientCounter}`).remove();
 }
 
 function startPatientStream(patientNum) {
@@ -47,8 +58,17 @@ function startPatientStream(patientNum) {
     eventSources[patientNum] = eventSource;
     
     eventSource.onmessage = function(event) {
-        container.append(`<p>${event.data}</p>`);
-        container.scrollTop(container[0].scrollHeight);
+        const data = event.data.split(',');
+        const selectedSensors = panel.find('.sensor-checkbox:checked').map(function() {
+            return $(this).val();
+        }).get();
+        
+        let filteredData = data.filter((value, index) => selectedSensors.includes(sensorTypes[index]));
+        
+        if (filteredData.length > 0) {
+            container.append(`<p>${filteredData.join(', ')}</p>`);
+            container.scrollTop(container[0].scrollHeight);
+        }
     };
 }
 
