@@ -1,30 +1,78 @@
-let eventSources = [];
+let eventSources = {};
+let patientCounter = 0;
 
-function startMultiStreaming() {
-    stopAllStreams();
-    
-    const patient1Id = $('.patient1-id').val();
-    const patient1Activity = $('.patient1-activity').val();
-    const patient2Id = $('.patient2-id').val();
-    const patient2Activity = $('.patient2-activity').val();
-
-    $('#data-container-1').empty();
-    $('#data-container-2').empty();
-
-    startPatientStream(patient1Id, patient1Activity, 1);
-    startPatientStream(patient2Id, patient2Activity, 2);
+function createPatientPanel() {
+    patientCounter++;
+    return `
+        <div class="patient-container" id="patient-panel-${patientCounter}">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3>Patient ${patientCounter}</h3>
+                <button onclick="removePatientPanel(${patientCounter})" class="btn btn-danger btn-sm">Supprimer</button>
+            </div>
+            <div class="form-group mb-3">
+                <label>Patient ID:</label>
+                <input type="number" class="form-control patient-id" value="${patientCounter}">
+                <label>Activité:</label>
+                <input type="number" class="form-control activity-id" value="0">
+            </div>
+            <div class="mb-3">
+                <button onclick="startPatientStream(${patientCounter})" class="btn btn-success btn-sm">Démarrer</button>
+                <button onclick="stopPatientStream(${patientCounter})" class="btn btn-warning btn-sm">Arrêter</button>
+            </div>
+            <div id="data-container-${patientCounter}" class="data-display"></div>
+        </div>
+    `;
 }
 
-function startPatientStream(patientId, activityId, containerNum) {
+function addPatientPanel() {
+    $('#patients-container').append(createPatientPanel());
+}
+
+function removePatientPanel(patientNum) {
+    stopPatientStream(patientNum);
+    $(`#patient-panel-${patientNum}`).remove();
+}
+
+function startPatientStream(patientNum) {
+    stopPatientStream(patientNum);
+    
+    const panel = $(`#patient-panel-${patientNum}`);
+    const patientId = panel.find('.patient-id').val();
+    const activityId = panel.find('.activity-id').val();
+    const container = $(`#data-container-${patientNum}`);
+    
+    container.empty();
+    
     const eventSource = new EventSource(`/data/${patientId}/${activityId}`);
-    eventSources.push(eventSource);
+    eventSources[patientNum] = eventSource;
     
     eventSource.onmessage = function(event) {
-        $(`#data-container-${containerNum}`).append(`<p>${event.data}</p>`);
+        container.append(`<p>${event.data}</p>`);
+        container.scrollTop(container[0].scrollHeight);
     };
 }
 
-function stopAllStreams() {
-    eventSources.forEach(es => es.close());
-    eventSources = [];
+function stopPatientStream(patientNum) {
+    if (eventSources[patientNum]) {
+        eventSources[patientNum].close();
+        delete eventSources[patientNum];
+    }
 }
+
+function startAllStreams() {
+    $('.patient-container').each(function() {
+        const patientNum = $(this).attr('id').replace('patient-panel-', '');
+        startPatientStream(parseInt(patientNum));
+    });
+}
+
+function stopAllStreams() {
+    for (let patientNum in eventSources) {
+        stopPatientStream(patientNum);
+    }
+}
+
+// Ajouter automatiquement un premier patient au chargement
+$(document).ready(function() {
+    addPatientPanel();
+});

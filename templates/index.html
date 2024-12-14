@@ -12,41 +12,26 @@
             margin-bottom: 20px;
             border-radius: 5px;
         }
+        .data-display {
+            max-height: 300px;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+            padding: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="container mt-5">
         <h1>Données de Santé en Temps Réel</h1>
-        <div class="patient-inputs mb-4">
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="patient-container">
-                        <h3>Patient 1</h3>
-                        <label>Patient ID:</label>
-                        <input type="number" class="patient1-id" value="1">
-                        <label>Activité:</label>
-                        <input type="number" class="patient1-activity" value="0">
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="patient-container">
-                        <h3>Patient 2</h3>
-                        <label>Patient ID:</label>
-                        <input type="number" class="patient2-id" value="2">
-                        <label>Activité:</label>
-                        <input type="number" class="patient2-activity" value="0">
-                    </div>
-                </div>
-            </div>
-            <button onclick="startMultiStreaming()" class="btn btn-primary mt-3">Démarrer la visualisation</button>
+        
+        <div class="mb-3">
+            <button onclick="addPatientPanel()" class="btn btn-success">Ajouter un patient</button>
+            <button onclick="startAllStreams()" class="btn btn-primary">Démarrer tous les flux</button>
+            <button onclick="stopAllStreams()" class="btn btn-danger">Arrêter tous les flux</button>
         </div>
-        <div class="row">
-            <div class="col-md-6">
-                <div id="data-container-1" class="patient-container"></div>
-            </div>
-            <div class="col-md-6">
-                <div id="data-container-2" class="patient-container"></div>
-            </div>
+
+        <div id="patients-container">
+            <!-- Les panels de patients seront ajoutés ici dynamiquement -->
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
