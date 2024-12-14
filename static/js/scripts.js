@@ -1,15 +1,37 @@
+// scripts.js
 let eventSources = {};
 let patientCounter = 0;
-const sensorTypes = ['alx', 'aly', 'alz', 'glx', 'gly', 'glz'];
+const sensorTypes = {
+    'alx': {name: 'Accélération sur l\'axe X', description: 'Centrale inertielle placée sur la cheville gauche'},
+    'aly': {name: 'Accélération sur l\'axe Y', description: 'Centrale inertielle placée sur la cheville gauche'},
+    'alz': {name: 'Accélération sur l\'axe Z', description: 'Centrale inertielle placée sur la cheville gauche'},
+    'glx': {name: 'Position angulaire sur l\'axe X', description: 'Gyroscope placé sur la cheville gauche'},
+    'gly': {name: 'Position angulaire sur l\'axe Y', description: 'Gyroscope placé sur la cheville gauche'},
+    'glz': {name: 'Position angulaire sur l\'axe Z', description: 'Gyroscope placé sur la cheville gauche'},
+    'arx': {name: 'Accélération sur l\'axe X', description: 'Centrale inertielle placée sur l\'avant bras droit'},
+    'ary': {name: 'Accélération sur l\'axe Y', description: 'Centrale inertielle placée sur l\'avant bras droit'},
+    'arz': {name: 'Accélération sur l\'axe Z', description: 'Centrale inertielle placée sur l\'avant bras droit'},
+    'grx': {name: 'Position angulaire sur l\'axe X', description: 'Gyroscope placé sur l\'avant bras droit'},
+    'gry': {name: 'Position angulaire sur l\'axe Y', description: 'Gyroscope placé sur l\'avant bras droit'},
+    'grz': {name: 'Position angulaire sur l\'axe Z', description: 'Gyroscope placé sur l\'avant bras droit'}
+};
+
+function createSensorCheckbox(sensor, isGlobal = false) {
+    const id = isGlobal ? `global-${sensor}` : `${sensor}-${patientCounter}`;
+    return `
+        <div class="form-check">
+            <input class="form-check-input sensor-checkbox ${isGlobal ? 'global-sensor' : ''}" type="checkbox" id="${id}" value="${sensor}" checked>
+            <label class="form-check-label sensor-label" for="${id}">
+                ${sensorTypes[sensor].name} (${sensor})
+                <i class="bi bi-info-circle info-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="${sensorTypes[sensor].description}"></i>
+            </label>
+        </div>
+    `;
+}
 
 function createPatientPanel() {
     patientCounter++;
-    let sensorCheckboxes = sensorTypes.map(sensor => 
-        `<div class="form-check form-check-inline">
-            <input class="form-check-input sensor-checkbox" type="checkbox" id="${sensor}-${patientCounter}" value="${sensor}" checked>
-            <label class="form-check-label" for="${sensor}-${patientCounter}">${sensor}</label>
-        </div>`
-    ).join('');
+    let sensorCheckboxes = Object.keys(sensorTypes).map(sensor => createSensorCheckbox(sensor)).join('');
 
     return `
         <div class="patient-container" id="patient-panel-${patientCounter}">
@@ -37,11 +59,12 @@ function createPatientPanel() {
 
 function addPatientPanel() {
     $('#patients-container').append(createPatientPanel());
+    initTooltips();
 }
 
 function removePatientPanel(patientNum) {
     stopPatientStream(patientNum);
-    $(`#patient-panel-${patientCounter}`).remove();
+    $(`#patient-panel-${patientNum}`).remove();
 }
 
 function startPatientStream(patientNum) {
@@ -63,7 +86,7 @@ function startPatientStream(patientNum) {
             return $(this).val();
         }).get();
         
-        let filteredData = data.filter((value, index) => selectedSensors.includes(sensorTypes[index]));
+        let filteredData = data.filter((value, index) => selectedSensors.includes(Object.keys(sensorTypes)[index]));
         
         if (filteredData.length > 0) {
             container.append(`<p>${filteredData.join(', ')}</p>`);
@@ -92,7 +115,27 @@ function stopAllStreams() {
     }
 }
 
-// Ajouter automatiquement un premier patient au chargement
+function initTooltips() {
+    $('[data-bs-toggle="tooltip"]').tooltip();
+}
+
+function createGlobalSensorCheckboxes() {
+    let checkboxes = Object.keys(sensorTypes).map(sensor => createSensorCheckbox(sensor, true)).join('');
+    $('#global-sensor-checkboxes').html(checkboxes);
+}
+
+function initGlobalSensorControls() {
+    $(document).on('change', '.global-sensor', function() {
+        const sensor = $(this).val();
+        const isChecked = $(this).prop('checked');
+        $(`.sensor-checkbox[value="${sensor}"]:not(.global-sensor)`).prop('checked', isChecked);
+    });
+}
+
+// Initialisation
 $(document).ready(function() {
+    createGlobalSensorCheckboxes();
+    initGlobalSensorControls();
     addPatientPanel();
+    initTooltips();
 });
