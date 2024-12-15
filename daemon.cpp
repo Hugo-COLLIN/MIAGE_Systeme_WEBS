@@ -61,19 +61,19 @@ void signal_handler(int signal){
 
 // Fonction main: itération en boucle des données
 int main(int argc, char *argv[]){
-
     my_sId = 0;
     my_activity = 0;
     my_index = 1;
+    int refresh_rate = 1000;
     subject.append("subject");
 
     // Install a signal handler
     std::signal(SIGINT, signal_handler);
 
-    
-    if (argc > 2 && argv[0] != ""){
+    if (argc > 3 && argv[0] != ""){
         my_sId = atoi(argv[1]);
         my_activity = atoi(argv[2]);
+        refresh_rate = atoi(argv[3]);
     }
     subject.append(std::to_string(my_sId));
     
@@ -102,11 +102,11 @@ int main(int argc, char *argv[]){
         while(std::getline(input, line)){
             my_index++;
             std::cout << line << std::endl;
-            usleep(50*1000); // dormir pendant 100 ms
+            usleep(refresh_rate * 1000); // dormir pendant refresh_rate ms
         }
         my_index = 1;
         input.clear();
         input.seekg (0); // aller à l'index 0
         std::getline(input, line);  
-    }    
+    }
 }

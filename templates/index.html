@@ -45,6 +45,13 @@
             <button onclick="stopAllStreams()" class="btn btn-danger">Arrêter tous les flux</button>
         </div>
 
+        <div class="mb-3">
+            <label for="refresh-rate">Taux de rafraîchissement (ms):</label>
+            <input type="range" class="form-range" id="refresh-rate" min="100" max="2000" step="100" value="1000">
+            <span id="refresh-rate-value">1000 ms</span>
+        </div>
+        
+
         <div class="mb-4">
             <h4>Sélection globale des capteurs</h4>
             <div id="global-sensor-checkboxes" class="sensor-checkboxes"></div>

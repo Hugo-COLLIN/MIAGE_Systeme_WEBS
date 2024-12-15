@@ -15,6 +15,19 @@ const sensorTypes = {
     'gry': {name: 'Position angulaire sur l\'axe Y', description: 'Gyroscope placé sur l\'avant bras droit'},
     'grz': {name: 'Position angulaire sur l\'axe Z', description: 'Gyroscope placé sur l\'avant bras droit'}
 };
+let refreshRate = 1000;
+
+function updateRefreshRateDisplay() {
+    $('#refresh-rate-value').text(refreshRate + ' ms');
+}
+
+function setRefreshRate(rate) {
+    refreshRate = rate;
+    updateRefreshRateDisplay();
+    // Redémarrer tous les flux pour appliquer le nouveau taux
+    stopAllStreams();
+    startAllStreams();
+}
 
 function createSensorCheckbox(sensor, isGlobal = false) {
     const id = isGlobal ? `global-${sensor}` : `${sensor}-${patientCounter}`;
@@ -77,7 +90,7 @@ function startPatientStream(patientNum) {
     
     container.empty();
     
-    const eventSource = new EventSource(`/data/${patientId}/${activityId}`);
+    const eventSource = new EventSource(`/data/${patientId}/${activityId}/${refreshRate}`);
     eventSources[patientNum] = eventSource;
     
     eventSource.onmessage = function(event) {
@@ -138,4 +151,9 @@ $(document).ready(function() {
     initGlobalSensorControls();
     addPatientPanel();
     initTooltips();
+
+    $('#refresh-rate').on('input', function() {
+        setRefreshRate(parseInt($(this).val()));
+    });
+    updateRefreshRateDisplay();
 });
