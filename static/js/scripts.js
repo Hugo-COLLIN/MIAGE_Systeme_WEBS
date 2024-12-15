@@ -15,7 +15,24 @@ const sensorTypes = {
     'gry': {name: 'Position angulaire sur l\'axe Y', description: 'Gyroscope placé sur l\'avant bras droit'},
     'grz': {name: 'Position angulaire sur l\'axe Z', description: 'Gyroscope placé sur l\'avant bras droit'}
 };
-let refreshRate = 1000;
+let globalRefreshRate = 1000;
+
+function updateGlobalRefreshRateDisplay() {
+    $('#global-refresh-rate-value').text(globalRefreshRate + ' ms');
+}
+
+function setGlobalRefreshRate(rate) {
+    globalRefreshRate = rate;
+    updateGlobalRefreshRateDisplay();
+    $('.patient-container').each(function() {
+        const patientNum = $(this).attr('id').replace('patient-panel-', '');
+        $(this).find('.refresh-rate').val(rate);
+        updateRefreshRateDisplay(patientNum);
+        if (eventSources[patientNum]) {
+            startPatientStream(patientNum);
+        }
+    });
+}
 
 function updateRefreshRateDisplay(patientNum) {
     const panel = $(`#patient-panel-${patientNum}`);
@@ -29,12 +46,6 @@ function setRefreshRate(patientNum) {
         startPatientStream(patientNum);
     }
 }
-
-$(document).on('input', '.refresh-rate', function() {
-    const patientNum = $(this).closest('.patient-container').attr('id').replace('patient-panel-', '');
-    setRefreshRate(patientNum);
-});
-
 
 function createSensorCheckbox(sensor, isGlobal = false) {
     const id = isGlobal ? `global-${sensor}` : `${sensor}-${patientCounter}`;
@@ -67,8 +78,8 @@ function createPatientPanel() {
             </div>
             <div class="mb-3">
                 <label for="refresh-rate-${patientCounter}">Taux de rafraîchissement (ms):</label>
-                <input type="range" class="form-range refresh-rate" id="refresh-rate-${patientCounter}" min="100" max="2000" step="100" value="1000">
-                <span class="refresh-rate-value">1000 ms</span>
+                <input type="range" class="form-range refresh-rate" id="refresh-rate-${patientCounter}" min="100" max="2000" step="100" value="${globalRefreshRate}">
+                <span class="refresh-rate-value">${globalRefreshRate} ms</span>
             </div>
             <div class="sensor-checkboxes mb-3">
                 ${sensorCheckboxes}
@@ -165,8 +176,14 @@ $(document).ready(function() {
     addPatientPanel();
     initTooltips();
 
-    $('#refresh-rate').on('input', function() {
-        setRefreshRate(parseInt($(this).val()));
+    $('#global-refresh-rate').on('input', function() {
+        setGlobalRefreshRate(parseInt($(this).val()));
     });
-    updateRefreshRateDisplay();
+
+    $(document).on('input', '.refresh-rate', function() {
+        const patientNum = $(this).closest('.patient-container').attr('id').replace('patient-panel-', '');
+        setRefreshRate(patientNum);
+    });
+
+    updateGlobalRefreshRateDisplay();
 });
