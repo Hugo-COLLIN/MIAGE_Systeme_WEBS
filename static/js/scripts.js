@@ -17,17 +17,24 @@ const sensorTypes = {
 };
 let refreshRate = 1000;
 
-function updateRefreshRateDisplay() {
-    $('#refresh-rate-value').text(refreshRate + ' ms');
+function updateRefreshRateDisplay(patientNum) {
+    const panel = $(`#patient-panel-${patientNum}`);
+    const refreshRate = panel.find('.refresh-rate').val();
+    panel.find('.refresh-rate-value').text(refreshRate + ' ms');
 }
 
-function setRefreshRate(rate) {
-    refreshRate = rate;
-    updateRefreshRateDisplay();
-    // Redémarrer tous les flux pour appliquer le nouveau taux
-    stopAllStreams();
-    startAllStreams();
+function setRefreshRate(patientNum) {
+    updateRefreshRateDisplay(patientNum);
+    if (eventSources[patientNum]) {
+        startPatientStream(patientNum);
+    }
 }
+
+$(document).on('input', '.refresh-rate', function() {
+    const patientNum = $(this).closest('.patient-container').attr('id').replace('patient-panel-', '');
+    setRefreshRate(patientNum);
+});
+
 
 function createSensorCheckbox(sensor, isGlobal = false) {
     const id = isGlobal ? `global-${sensor}` : `${sensor}-${patientCounter}`;
@@ -58,6 +65,11 @@ function createPatientPanel() {
                 <label>Activité:</label>
                 <input type="number" class="form-control activity-id" value="0">
             </div>
+            <div class="mb-3">
+                <label for="refresh-rate-${patientCounter}">Taux de rafraîchissement (ms):</label>
+                <input type="range" class="form-range refresh-rate" id="refresh-rate-${patientCounter}" min="100" max="2000" step="100" value="1000">
+                <span class="refresh-rate-value">1000 ms</span>
+            </div>
             <div class="sensor-checkboxes mb-3">
                 ${sensorCheckboxes}
             </div>
@@ -86,6 +98,7 @@ function startPatientStream(patientNum) {
     const panel = $(`#patient-panel-${patientNum}`);
     const patientId = panel.find('.patient-id').val();
     const activityId = panel.find('.activity-id').val();
+    const refreshRate = panel.find('.refresh-rate').val();
     const container = $(`#data-container-${patientNum}`);
     
     container.empty();
