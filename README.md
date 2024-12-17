@@ -48,7 +48,7 @@ git clone git@github.com:Hugo-COLLIN/MIAGE_Systeme_WEBS.git
 ```
 
 ### 1. Préparer l'environnement de développement
-1. Se placer dans le répertoire du projet
+1. Se placer dans le répertoire du projet (`cd MIAGE_Systeme_WEBS`)
 2. Copier le dossier `sensor/` depuis l'archive disponible sur le cours en ligne à la racine du projet.
 3. Créer l'environnement virtuel Python :
 ```sh
