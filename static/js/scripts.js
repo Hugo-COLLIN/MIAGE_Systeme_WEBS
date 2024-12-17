@@ -1,4 +1,3 @@
-// scripts.js
 let eventSources = {};
 let patientCounter = 0;
 const sensorTypes = {
@@ -34,61 +33,34 @@ function setGlobalRefreshRate(rate) {
     });
 }
 
-function updateRefreshRateDisplay(patientNum) {
-    const panel = $(`#patient-panel-${patientNum}`);
-    const refreshRate = panel.find('.refresh-rate').val();
-    panel.find('.refresh-rate-value').text(refreshRate + ' ms');
-}
-
-function setRefreshRate(patientNum) {
-    updateRefreshRateDisplay(patientNum);
-    if (eventSources[patientNum]) {
-        startPatientStream(patientNum);
-    }
-}
-
-function createSensorCheckbox(sensor, isGlobal = false) {
-    const id = isGlobal ? `global-${sensor}` : `${sensor}-${patientCounter}`;
-    return `
-        <div class="form-check">
-            <input class="form-check-input sensor-checkbox ${isGlobal ? 'global-sensor' : ''}" type="checkbox" id="${id}" value="${sensor}" checked>
-            <label class="form-check-label sensor-label" for="${id}">
-                ${sensorTypes[sensor].name} (${sensor})
-                <i class="bi bi-info-circle info-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="${sensorTypes[sensor].description}"></i>
-            </label>
-        </div>
-    `;
-}
-
 function createPatientPanel() {
     patientCounter++;
     let sensorCheckboxes = Object.keys(sensorTypes).map(sensor => createSensorCheckbox(sensor)).join('');
 
     return `
-        <div class="patient-container" id="patient-panel-${patientCounter}">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3>Patient ${patientCounter}</h3>
-                <button onclick="removePatientPanel(${patientCounter})" class="btn btn-danger btn-sm">Supprimer</button>
-            </div>
-            <div class="form-group mb-3">
+        <div class="patient-container mb-3" id="patient-panel-${patientCounter}">
+            <h4>Patient ${patientCounter}</h4>
+            <div class="form-group mb-2">
                 <label>Patient ID:</label>
                 <input type="number" class="form-control patient-id" value="${patientCounter}">
+            </div>
+            <div class="form-group mb-2">
                 <label>Activité:</label>
                 <input type="number" class="form-control activity-id" value="0">
             </div>
-            <div class="mb-3">
+            <div class="mb-2">
                 <label for="refresh-rate-${patientCounter}">Taux de rafraîchissement (ms):</label>
                 <input type="range" class="form-range refresh-rate" id="refresh-rate-${patientCounter}" min="100" max="2000" step="100" value="${globalRefreshRate}">
                 <span class="refresh-rate-value">${globalRefreshRate} ms</span>
             </div>
-            <div class="sensor-checkboxes mb-3">
+            <div class="sensor-checkboxes mb-2">
                 ${sensorCheckboxes}
             </div>
-            <div class="mb-3">
+            <div class="mb-2">
                 <button onclick="startPatientStream(${patientCounter})" class="btn btn-success btn-sm">Démarrer</button>
                 <button onclick="stopPatientStream(${patientCounter})" class="btn btn-warning btn-sm">Arrêter</button>
+                <button onclick="removePatientPanel(${patientCounter})" class="btn btn-danger btn-sm">Supprimer</button>
             </div>
-            <div id="data-container-${patientCounter}" class="data-display"></div>
         </div>
     `;
 }
@@ -110,9 +82,6 @@ function startPatientStream(patientNum) {
     const patientId = panel.find('.patient-id').val();
     const activityId = panel.find('.activity-id').val();
     const refreshRate = panel.find('.refresh-rate').val();
-    const container = $(`#data-container-${patientNum}`);
-    
-    container.empty();
     
     const eventSource = new EventSource(`/data/${patientId}/${activityId}/${refreshRate}`);
     eventSources[patientNum] = eventSource;
@@ -126,8 +95,9 @@ function startPatientStream(patientNum) {
         let filteredData = data.filter((value, index) => selectedSensors.includes(Object.keys(sensorTypes)[index]));
         
         if (filteredData.length > 0) {
-            container.append(`<p>${filteredData.join(', ')}</p>`);
-            container.scrollTop(container[0].scrollHeight);
+            const formattedData = `Patient ${patientId}: ${filteredData.join(', ')}`;
+            $('#common-data-container').append(`<p>${formattedData}</p>`);
+            $('#common-data-container').scrollTop($('#common-data-container')[0].scrollHeight);
         }
     };
 }
@@ -152,30 +122,36 @@ function stopAllStreams() {
     }
 }
 
+function updateRefreshRateDisplay(patientNum) {
+    const panel = $(`#patient-panel-${patientNum}`);
+    const refreshRate = panel.find('.refresh-rate').val();
+    panel.find('.refresh-rate-value').text(refreshRate + ' ms');
+}
+
+function setRefreshRate(patientNum) {
+    updateRefreshRateDisplay(patientNum);
+    if (eventSources[patientNum]) {
+        startPatientStream(patientNum);
+    }
+}
+
+function createSensorCheckbox(sensor) {
+    return `
+        <div class="form-check">
+            <input class="form-check-input sensor-checkbox" type="checkbox" id="${sensor}-${patientCounter}" value="${sensor}" checked>
+            <label class="form-check-label sensor-label" for="${sensor}-${patientCounter}">
+                ${sensorTypes[sensor].name} (${sensor})
+                <i class="bi bi-info-circle info-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="${sensorTypes[sensor].description}"></i>
+            </label>
+        </div>
+    `;
+}
+
 function initTooltips() {
     $('[data-bs-toggle="tooltip"]').tooltip();
 }
 
-function createGlobalSensorCheckboxes() {
-    let checkboxes = Object.keys(sensorTypes).map(sensor => createSensorCheckbox(sensor, true)).join('');
-    $('#global-sensor-checkboxes').html(checkboxes);
-}
-
-function initGlobalSensorControls() {
-    $(document).on('change', '.global-sensor', function() {
-        const sensor = $(this).val();
-        const isChecked = $(this).prop('checked');
-        $(`.sensor-checkbox[value="${sensor}"]:not(.global-sensor)`).prop('checked', isChecked);
-    });
-}
-
-// Initialisation
 $(document).ready(function() {
-    createGlobalSensorCheckboxes();
-    initGlobalSensorControls();
-    addPatientPanel();
-    initTooltips();
-
     $('#global-refresh-rate').on('input', function() {
         setGlobalRefreshRate(parseInt($(this).val()));
     });
@@ -186,4 +162,5 @@ $(document).ready(function() {
     });
 
     updateGlobalRefreshRateDisplay();
+    addPatientPanel(); // Ajoute un premier patient par défaut
 });

@@ -7,14 +7,12 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
     <style>
-        .patient-container {
-            border: 1px solid #ddd;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 5px;
+        .sidebar {
+            height: 100vh;
+            overflow-y: auto;
         }
         .data-display {
-            max-height: 300px;
+            height: 80vh;
             overflow-y: auto;
             background-color: #f8f9fa;
             padding: 10px;
@@ -36,28 +34,35 @@
     </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <h1>Données de Santé en Temps Réel</h1>
-        
-        <div class="mb-3">
-            <button onclick="addPatientPanel()" class="btn btn-success">Ajouter un patient</button>
-            <button onclick="startAllStreams()" class="btn btn-primary">Démarrer tous les flux</button>
-            <button onclick="stopAllStreams()" class="btn btn-danger">Arrêter tous les flux</button>
-        </div>
-
-        <div class="mb-3">
-            <label for="global-refresh-rate">Taux de rafraîchissement global (ms):</label>
-            <input type="range" class="form-range" id="global-refresh-rate" min="100" max="2000" step="100" value="1000">
-            <span id="global-refresh-rate-value">1000 ms</span>
-        </div>
-
-        <div class="mb-4">
-            <h4>Sélection globale des capteurs</h4>
-            <div id="global-sensor-checkboxes" class="sensor-checkboxes"></div>
-        </div>
-
-        <div id="patients-container">
-            <!-- Les panels de patients seront ajoutés ici dynamiquement -->
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 sidebar bg-light p-3">
+                <h3>Gestion des patients</h3>
+                <div class="mb-3">
+                    <button onclick="addPatientPanel()" class="btn btn-success">Ajouter un patient</button>
+                </div>
+                <div class="mb-3">
+                    <label for="global-refresh-rate">Taux de rafraîchissement global (ms):</label>
+                    <input type="range" class="form-range" id="global-refresh-rate" min="100" max="2000" step="100" value="1000">
+                    <span id="global-refresh-rate-value">1000 ms</span>
+                </div>
+                <div id="patients-container">
+                    <!-- Les panels de patients seront ajoutés ici dynamiquement -->
+                </div>
+            </div>
+            
+            <!-- Main content -->
+            <div class="col-md-9">
+                <h1 class="mt-3">Données de Santé en Temps Réel</h1>
+                <div class="mb-3">
+                    <button onclick="startAllStreams()" class="btn btn-primary">Démarrer tous les flux</button>
+                    <button onclick="stopAllStreams()" class="btn btn-danger">Arrêter tous les flux</button>
+                </div>
+                <div id="common-data-container" class="data-display">
+                    <!-- Les données de tous les patients seront affichées ici -->
+                </div>
+            </div>
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
