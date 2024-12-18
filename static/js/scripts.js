@@ -322,10 +322,37 @@ function initSensorCharts() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                animation: false, // Désactiver les animations pour améliorer les performances
-                title: {
-                    display: true,
-                    text: sensorTypes[sensor].name
+                animation: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: sensorTypes[sensor].name,
+                        font: {
+                            size: 14 // Réduire la taille du titre
+                        }
+                    },
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            boxWidth: 10
+                        }
+                    },
+                    // zoom: {
+                    //     zoom: {
+                    //         wheel: {
+                    //             enabled: true,
+                    //         },
+                    //         pinch: {
+                    //             enabled: true
+                    //         },
+                    //         mode: 'xy',
+                    //     },
+                    //     pan: {
+                    //         enabled: true,
+                    //         mode: 'xy',
+                    //     }
+                    // }
                 },
                 scales: {
                     x: {
@@ -333,12 +360,18 @@ function initSensorCharts() {
                         position: 'bottom',
                         title: {
                             display: true,
-                            text: 'Temps (s)'
+                            text: 'Temps (s)',
+                            font: {
+                                size: 10 // Réduire la taille du titre de l'axe
+                            }
                         },
                         ticks: {
                             callback: function(value) {
                                 return formatTime(value);
-                            }
+                            },
+                            // font: {
+                            //     size: 8 // Réduire la taille des graduations
+                            // }
                         }
                     },
                     y: {
@@ -346,24 +379,15 @@ function initSensorCharts() {
                         position: 'left',
                         title: {
                             display: true,
-                            text: 'Valeur'
-                        }
-                    }
-                },
-                plugins: {
-                    zoom: {
-                        zoom: {
-                            wheel: {
-                                enabled: true,
-                            },
-                            pinch: {
-                                enabled: true
-                            },
-                            mode: 'xy',
+                            text: 'Valeur',
+                            font: {
+                                size: 10 // Réduire la taille du titre de l'axe
+                            }
                         },
-                        pan: {
-                            enabled: true,
-                            mode: 'xy',
+                        ticks: {
+                            // font: {
+                            //     size: 8 // Réduire la taille des graduations
+                            // }
                         }
                     }
                 }
