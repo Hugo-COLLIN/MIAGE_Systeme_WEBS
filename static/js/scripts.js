@@ -76,11 +76,25 @@ function createPatientPanel() {
 function addPatientPanel() {
     $('#patients-container').append(createPatientPanel());
     initTooltips();
+
+    // Ajouter un gestionnaire d'événements pour les changements de checkbox
+    $(`#patient-panel-${patientCounter}`).on('change', '.sensor-checkbox', function() {
+        const patientNum = $(this).closest('.patient-container').attr('id').replace('patient-panel-', '');
+        if (eventSources[patientNum]) {
+            startPatientStream(patientNum);
+        }
+    });
 }
 
 function removePatientPanel(patientNum) {
     stopPatientStream(patientNum);
     $(`#patient-panel-${patientNum}`).remove();
+
+    // Supprimer les données du patient des graphiques par capteur
+    Object.values(sensorCharts).forEach(chart => {
+        chart.data.datasets = chart.data.datasets.filter(ds => ds.patientId !== patientNum);
+        chart.update();
+    });
 }
 
 function startPatientStream(patientNum) {
@@ -163,6 +177,7 @@ function initTooltips() {
 
 // chart
 let chart;
+let sensorCharts = {};
 const maxDataPoints = 100;
 let datasets = [];
 
@@ -258,6 +273,116 @@ function updateChart(patientId, data, selectedSensors) {
     });
 
     chart.update();
+
+    // Mettre à jour les graphiques par capteur
+    updateSensorCharts(patientId, data, selectedSensors);
+}
+
+function initSensorCharts() {
+    const container = document.getElementById('sensorChartsContainer');
+    container.innerHTML = ''; // Nettoyer le conteneur
+
+    Object.keys(sensorTypes).forEach(sensor => {
+        const chartDiv = document.createElement('div');
+        chartDiv.className = 'sensor-chart';
+        chartDiv.id = `chart-${sensor}`;
+        container.appendChild(chartDiv);
+
+        const canvas = document.createElement('canvas');
+        chartDiv.appendChild(canvas);
+
+        sensorCharts[sensor] = new Chart(canvas.getContext('2d'), {
+            type: 'line',
+            data: {
+                datasets: []
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                title: {
+                    display: true,
+                    text: sensorTypes[sensor].name
+                },
+                scales: {
+                    x: {
+                        type: 'linear',
+                        position: 'bottom',
+                        title: {
+                            display: true,
+                            text: 'Temps'
+                        }
+                    },
+                    y: {
+                        type: 'linear',
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Valeur'
+                        }
+                    }
+                },
+                plugins: {
+                    zoom: {
+                        zoom: {
+                            wheel: {
+                                enabled: true,
+                            },
+                            pinch: {
+                                enabled: true
+                            },
+                            mode: 'xy',
+                        },
+                        pan: {
+                            enabled: true,
+                            mode: 'xy',
+                        }
+                    }
+                }
+            }
+        });
+    });
+}
+
+function updateSensorCharts(patientId, data, selectedSensors) {
+    const time = Date.now();
+    
+    selectedSensors.forEach((sensor, index) => {
+        const chart = sensorCharts[sensor];
+        if (!chart) return;
+
+        const datasetIndex = chart.data.datasets.findIndex(ds => ds.patientId === patientId);
+        if (datasetIndex === -1) {
+            // Ajouter un nouveau dataset si nécessaire
+            const newDataset = {
+                label: `Patient ${patientId}`,
+                data: [{x: time, y: parseFloat(data[index])}],
+                borderColor: getRandomColor(),
+                fill: false,
+                patientId: patientId
+            };
+            chart.data.datasets.push(newDataset);
+        } else {
+            // Mettre à jour le dataset existant
+            chart.data.datasets[datasetIndex].data.push({x: time, y: parseFloat(data[index])});
+            if (chart.data.datasets[datasetIndex].data.length > maxDataPoints) {
+                chart.data.datasets[datasetIndex].data.shift();
+            }
+        }
+
+        chart.update();
+    });
+
+    // Supprimer les datasets des capteurs non sélectionnés
+    Object.keys(sensorCharts).forEach(sensor => {
+        const chart = sensorCharts[sensor];
+        chart.data.datasets = chart.data.datasets.filter(ds => {
+            if (ds.patientId === patientId && !selectedSensors.includes(sensor)) {
+                return false;
+            }
+            return true;
+        });
+        chart.update();
+    });
 }
 
 $(document).ready(function() {
@@ -271,13 +396,25 @@ $(document).ready(function() {
     });
 
     updateGlobalRefreshRateDisplay();
-    addPatientPanel(); // Ajoute un premier patient par défaut
 
     initChart();
+    initSensorCharts();
     
     $('#dataTabs button').on('shown.bs.tab', function (e) {
         if (e.target.id === 'graph-tab') {
             chart.resize();
+        } else if (e.target.id === 'sensor-charts-tab') {
+            Object.values(sensorCharts).forEach(chart => chart.resize());
         }
     });
+
+    // Ajouter un gestionnaire d'événements pour les changements de checkbox
+    $(document).on('change', '.sensor-checkbox', function() {
+        const patientNum = $(this).closest('.patient-container').attr('id').replace('patient-panel-', '');
+        if (eventSources[patientNum]) {
+            startPatientStream(patientNum);
+        }
+    });
+
+    addPatientPanel(); // Ajoute un premier patient par défaut
 });

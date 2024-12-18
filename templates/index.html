@@ -41,6 +41,10 @@
             height: 100%;
             width: 100%;
         }
+        .sensor-chart {
+            height: 300px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -71,14 +75,22 @@
                 </div>
                 <ul class="nav nav-tabs" id="dataTabs" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="text-tab" data-bs-toggle="tab" data-bs-target="#textData" type="button" role="tab" aria-controls="textData" aria-selected="true">Données textuelles</button>
+                        <button class="nav-link active" id="sensor-charts-tab" data-bs-toggle="tab" data-bs-target="#sensorCharts" type="button" role="tab" aria-controls="sensorCharts" aria-selected="true">Graphiques par capteur</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="graph-tab" data-bs-toggle="tab" data-bs-target="#graphData" type="button" role="tab" aria-controls="graphData" aria-selected="false">Graphique</button>
+                        <button class="nav-link" id="text-tab" data-bs-toggle="tab" data-bs-target="#textData" type="button" role="tab" aria-controls="textData" aria-selected="false">Données textuelles</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="graph-tab" data-bs-toggle="tab" data-bs-target="#graphData" type="button" role="tab" aria-controls="graphData" aria-selected="false">Graphique global</button>
                     </li>
                 </ul>
                 <div class="tab-content" id="dataTabContent">
-                    <div class="tab-pane fade show active" id="textData" role="tabpanel" aria-labelledby="text-tab">
+                    <div class="tab-pane fade show active" id="sensorCharts" role="tabpanel" aria-labelledby="sensor-charts-tab">
+                        <div id="sensorChartsContainer">
+                            <!-- Les graphiques par capteur seront ajoutés ici dynamiquement -->
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="textData" role="tabpanel" aria-labelledby="text-tab">
                         <div id="common-data-container" class="data-display">
                             <!-- Les données textuelles seront affichées ici -->
                         </div>
