@@ -37,6 +37,14 @@ function createPatientPanel() {
     patientCounter++;
     let sensorCheckboxes = Object.keys(sensorTypes).map(sensor => createSensorCheckbox(sensor)).join('');
 
+    // Ajouter un gestionnaire d'événements pour les changements de checkbox
+    $(`#patient-panel-${patientCounter}`).on('change', '.sensor-checkbox', function() {
+        const patientNum = $(this).closest('.patient-container').attr('id').replace('patient-panel-', '');
+        if (eventSources[patientNum]) {
+            startPatientStream(patientNum);
+        }
+    });
+
     return `
         <div class="patient-container mb-3" id="patient-panel-${patientCounter}">
             <h4>Patient ${patientCounter}</h4>
@@ -99,7 +107,7 @@ function startPatientStream(patientNum) {
             $('#common-data-container').append(`<p>${formattedData}</p>`);
             $('#common-data-container').scrollTop($('#common-data-container')[0].scrollHeight);
             
-            updateChart(filteredData);
+            updateChart(patientId, filteredData, selectedSensors);
         }
     };
 }
@@ -156,12 +164,7 @@ function initTooltips() {
 // chart
 let chart;
 const maxDataPoints = 100;
-const datasets = Object.keys(sensorTypes).map(sensor => ({
-    label: sensorTypes[sensor].name,
-    data: [],
-    borderColor: getRandomColor(),
-    fill: false
-}));
+let datasets = [];
 
 function getRandomColor() {
     return `rgb(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)})`;
@@ -172,8 +175,7 @@ function initChart() {
     chart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: [],
-            datasets: datasets
+            datasets: []
         },
         options: {
             responsive: true,
@@ -217,18 +219,44 @@ function initChart() {
     });
 }
 
-function updateChart(data) {
+function updateChart(patientId, data, selectedSensors) {
     const time = Date.now();
-    chart.data.labels.push(time);
-    data.forEach((value, index) => {
-        chart.data.datasets[index].data.push({x: time, y: parseFloat(value)});
-        if (chart.data.datasets[index].data.length > maxDataPoints) {
-            chart.data.datasets[index].data.shift();
+    
+    selectedSensors.forEach((sensor, index) => {
+        const datasetIndex = datasets.findIndex(ds => ds.patientId === patientId && ds.sensor === sensor);
+        if (datasetIndex === -1) {
+            // Ajouter un nouveau dataset si nécessaire
+            const newDataset = {
+                label: `Patient ${patientId} - ${sensorTypes[sensor].name}`,
+                data: [{x: time, y: parseFloat(data[index])}],
+                borderColor: getRandomColor(),
+                fill: false,
+                patientId: patientId,
+                sensor: sensor
+            };
+            datasets.push(newDataset);
+            chart.data.datasets.push(newDataset);
+        } else {
+            // Mettre à jour le dataset existant
+            datasets[datasetIndex].data.push({x: time, y: parseFloat(data[index])});
+            if (datasets[datasetIndex].data.length > maxDataPoints) {
+                datasets[datasetIndex].data.shift();
+            }
         }
     });
-    if (chart.data.labels.length > maxDataPoints) {
-        chart.data.labels.shift();
-    }
+
+    // Supprimer les datasets des capteurs non sélectionnés
+    datasets = datasets.filter(ds => {
+        if (ds.patientId === patientId && !selectedSensors.includes(ds.sensor)) {
+            const index = chart.data.datasets.findIndex(chartDs => chartDs.patientId === ds.patientId && chartDs.sensor === ds.sensor);
+            if (index !== -1) {
+                chart.data.datasets.splice(index, 1);
+            }
+            return false;
+        }
+        return true;
+    });
+
     chart.update();
 }
 
