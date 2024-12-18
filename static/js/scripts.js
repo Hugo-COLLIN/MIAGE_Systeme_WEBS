@@ -187,14 +187,21 @@ function initTooltips() {
 let chart;
 let sensorCharts = {};
 const maxDataPoints = 50;
-let startTime;
+let startTime = null;
+let elapsedTime = 0;
 let datasets = [];
 
-function formatTime(timestamp) {
-    if (!startTime) startTime = timestamp;
-    return ((timestamp - startTime) / 1).toFixed(0);
+
+function updateElapsedTime() {
+    if (startTime === null) {
+        startTime = Date.now();
+    }
+    elapsedTime = (Date.now() - startTime) / 1000;
 }
 
+function formatTime(seconds) {
+    return seconds.toFixed(2);
+}
 function getRandomColor() {
     return `rgb(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)})`;
 }
@@ -217,11 +224,6 @@ function initChart() {
                     title: {
                         display: true,
                         text: 'Temps'
-                    },
-                    ticks: {
-                        callback: function(value) {
-                            return formatTime(value);
-                        }
                     }
                 },
                 y: {
@@ -255,7 +257,7 @@ function initChart() {
 }
 
 function updateChart(patientId, data, selectedSensors) {
-    const time = Date.now();
+    updateElapsedTime();
     
     selectedSensors.forEach((sensor, index) => {
         const datasetIndex = datasets.findIndex(ds => ds.patientId === patientId && ds.sensor === sensor);
@@ -263,7 +265,7 @@ function updateChart(patientId, data, selectedSensors) {
             // Ajouter un nouveau dataset si nécessaire
             const newDataset = {
                 label: `Patient ${patientId} - ${sensorTypes[sensor].name}`,
-                data: [{x: time, y: parseFloat(data[index])}],
+                data: [{x: elapsedTime, y: parseFloat(data[index])}],
                 borderColor: getRandomColor(),
                 fill: false,
                 patientId: patientId,
@@ -273,7 +275,7 @@ function updateChart(patientId, data, selectedSensors) {
             chart.data.datasets.push(newDataset);
         } else {
             // Mettre à jour le dataset existant
-            datasets[datasetIndex].data.push({x: time, y: parseFloat(data[index])});
+            datasets[datasetIndex].data.push({x: elapsedTime, y: parseFloat(data[index])});
             if (datasets[datasetIndex].data.length > maxDataPoints) {
                 datasets[datasetIndex].data.shift();
             }
@@ -368,14 +370,6 @@ function initSensorCharts() {
                             font: {
                                 size: 10
                             }
-                        },
-                        ticks: {
-                            callback: function(value) {
-                                return formatTime(value);
-                            },
-                            // font: {
-                            //     size: 8 // Réduire la taille des graduations
-                            // }
                         }
                     },
                     y: {
@@ -396,8 +390,8 @@ function initSensorCharts() {
 }
 
 function updateSensorCharts(patientId, data, selectedSensors) {
-    const time = Date.now();
-    
+    updateElapsedTime();
+
     selectedSensors.forEach((sensor, index) => {
         const chart = sensorCharts[sensor];
         if (!chart) return;
@@ -407,7 +401,7 @@ function updateSensorCharts(patientId, data, selectedSensors) {
             // Ajouter un nouveau dataset si nécessaire
             const newDataset = {
                 label: `Patient ${patientId}`,
-                data: [{x: time, y: parseFloat(data[index])}],
+                data: [{x: elapsedTime, y: parseFloat(data[index])}],
                 borderColor: getRandomColor(),
                 fill: false,
                 patientId: patientId
@@ -415,7 +409,7 @@ function updateSensorCharts(patientId, data, selectedSensors) {
             chart.data.datasets.push(newDataset);
         } else {
             // Mettre à jour le dataset existant
-            chart.data.datasets[datasetIndex].data.push({x: time, y: parseFloat(data[index])});
+            chart.data.datasets[datasetIndex].data.push({x: elapsedTime, y: parseFloat(data[index])});
             if (chart.data.datasets[datasetIndex].data.length > maxDataPoints) {
                 chart.data.datasets[datasetIndex].data.shift();
             }
