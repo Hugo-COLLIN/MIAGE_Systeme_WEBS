@@ -119,7 +119,15 @@ function startPatientStream(patientNum) {
         if (filteredData.length > 0) {
             const formattedData = `Patient ${patientId}: ${filteredData.join(', ')}`;
             $('#common-data-container').append(`<p>${formattedData}</p>`);
-            $('#common-data-container').scrollTop($('#common-data-container')[0].scrollHeight);
+            
+            // Limiter le nombre de lignes affichées dans le conteneur de texte
+            const maxTextLines = 100;
+            const textContainer = $('#common-data-container');
+            if (textContainer.children().length > maxTextLines) {
+                textContainer.children().slice(0, textContainer.children().length - maxTextLines).remove();
+            }
+            
+            textContainer.scrollTop(textContainer[0].scrollHeight);
             
             updateChart(patientId, filteredData, selectedSensors);
         }
@@ -178,8 +186,14 @@ function initTooltips() {
 // chart
 let chart;
 let sensorCharts = {};
-const maxDataPoints = 100;
+const maxDataPoints = 50;
+let startTime;
 let datasets = [];
+
+function formatTime(timestamp) {
+    if (!startTime) startTime = timestamp;
+    return ((timestamp - startTime) / 1000).toFixed(1);
+}
 
 function getRandomColor() {
     return `rgb(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)})`;
@@ -195,6 +209,7 @@ function initChart() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            animation: false,
             scales: {
                 x: {
                     type: 'linear',
@@ -202,6 +217,11 @@ function initChart() {
                     title: {
                         display: true,
                         text: 'Temps'
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return formatTime(value);
+                        }
                     }
                 },
                 y: {
@@ -272,7 +292,10 @@ function updateChart(patientId, data, selectedSensors) {
         return true;
     });
 
-    chart.update();
+    // Mettre à jour le graphique de manière asynchrone
+    requestAnimationFrame(() => {
+        chart.update();
+    });
 
     // Mettre à jour les graphiques par capteur
     updateSensorCharts(patientId, data, selectedSensors);
@@ -280,7 +303,7 @@ function updateChart(patientId, data, selectedSensors) {
 
 function initSensorCharts() {
     const container = document.getElementById('sensorChartsContainer');
-    container.innerHTML = ''; // Nettoyer le conteneur
+    container.innerHTML = '';
 
     Object.keys(sensorTypes).forEach(sensor => {
         const chartDiv = document.createElement('div');
@@ -299,6 +322,7 @@ function initSensorCharts() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                animation: false, // Désactiver les animations pour améliorer les performances
                 title: {
                     display: true,
                     text: sensorTypes[sensor].name
@@ -309,7 +333,12 @@ function initSensorCharts() {
                         position: 'bottom',
                         title: {
                             display: true,
-                            text: 'Temps'
+                            text: 'Temps (s)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return formatTime(value);
+                            }
                         }
                     },
                     y: {
@@ -368,20 +397,11 @@ function updateSensorCharts(patientId, data, selectedSensors) {
                 chart.data.datasets[datasetIndex].data.shift();
             }
         }
-
-        chart.update();
     });
 
-    // Supprimer les datasets des capteurs non sélectionnés
-    Object.keys(sensorCharts).forEach(sensor => {
-        const chart = sensorCharts[sensor];
-        chart.data.datasets = chart.data.datasets.filter(ds => {
-            if (ds.patientId === patientId && !selectedSensors.includes(sensor)) {
-                return false;
-            }
-            return true;
-        });
-        chart.update();
+    // Mettre à jour les graphiques de manière asynchrone
+    requestAnimationFrame(() => {
+        Object.values(sensorCharts).forEach(chart => chart.update());
     });
 }
 
