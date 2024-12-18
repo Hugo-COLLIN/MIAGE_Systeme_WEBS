@@ -192,7 +192,7 @@ let datasets = [];
 
 function formatTime(timestamp) {
     if (!startTime) startTime = timestamp;
-    return ((timestamp - startTime) / 1000).toFixed(1);
+    return ((timestamp - startTime) / 1).toFixed(0);
 }
 
 function getRandomColor() {
@@ -305,10 +305,14 @@ function initSensorCharts() {
     const container = document.getElementById('sensorChartsContainer');
     container.innerHTML = '';
 
-    Object.keys(sensorTypes).forEach(sensor => {
+    const sensorOrder = ['alx', 'aly', 'alz', 'glx', 'gly', 'glz', 'arx', 'ary', 'arz', 'grx', 'gry', 'grz']
+
+    sensorOrder.forEach((sensor, index) => {
         const chartDiv = document.createElement('div');
         chartDiv.className = 'sensor-chart';
         chartDiv.id = `chart-${sensor}`;
+        chartDiv.style.gridColumn = `${Math.floor(index / 3) + 1}`;
+        chartDiv.style.gridRow = `${(index % 3) + 1}`;
         container.appendChild(chartDiv);
 
         const canvas = document.createElement('canvas');
@@ -326,9 +330,9 @@ function initSensorCharts() {
                 plugins: {
                     title: {
                         display: true,
-                        text: sensorTypes[sensor].name,
+                        text: `${sensorTypes[sensor].name} (${sensor})`,
                         font: {
-                            size: 14 // Réduire la taille du titre
+                            size: 14
                         }
                     },
                     legend: {
@@ -362,7 +366,7 @@ function initSensorCharts() {
                             display: true,
                             text: 'Temps (s)',
                             font: {
-                                size: 10 // Réduire la taille du titre de l'axe
+                                size: 10
                             }
                         },
                         ticks: {
@@ -381,13 +385,8 @@ function initSensorCharts() {
                             display: true,
                             text: 'Valeur',
                             font: {
-                                size: 10 // Réduire la taille du titre de l'axe
+                                size: 10
                             }
-                        },
-                        ticks: {
-                            // font: {
-                            //     size: 8 // Réduire la taille des graduations
-                            // }
                         }
                     }
                 }
