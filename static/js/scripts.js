@@ -98,6 +98,8 @@ function startPatientStream(patientNum) {
             const formattedData = `Patient ${patientId}: ${filteredData.join(', ')}`;
             $('#common-data-container').append(`<p>${formattedData}</p>`);
             $('#common-data-container').scrollTop($('#common-data-container')[0].scrollHeight);
+            
+            updateChart(filteredData);
         }
     };
 }
@@ -151,6 +153,85 @@ function initTooltips() {
     $('[data-bs-toggle="tooltip"]').tooltip();
 }
 
+// chart
+let chart;
+const maxDataPoints = 100;
+const datasets = Object.keys(sensorTypes).map(sensor => ({
+    label: sensorTypes[sensor].name,
+    data: [],
+    borderColor: getRandomColor(),
+    fill: false
+}));
+
+function getRandomColor() {
+    return `rgb(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)})`;
+}
+
+function initChart() {
+    const ctx = document.getElementById('realTimeChart').getContext('2d');
+    chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    type: 'linear',
+                    position: 'bottom',
+                    title: {
+                        display: true,
+                        text: 'Temps'
+                    }
+                },
+                y: {
+                    type: 'linear',
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: 'Valeur'
+                    }
+                }
+            },
+            plugins: {
+                zoom: {
+                    zoom: {
+                        wheel: {
+                            enabled: true,
+                        },
+                        pinch: {
+                            enabled: true
+                        },
+                        mode: 'xy',
+                    },
+                    pan: {
+                        enabled: true,
+                        mode: 'xy',
+                    }
+                }
+            }
+        }
+    });
+}
+
+function updateChart(data) {
+    const time = Date.now();
+    chart.data.labels.push(time);
+    data.forEach((value, index) => {
+        chart.data.datasets[index].data.push({x: time, y: parseFloat(value)});
+        if (chart.data.datasets[index].data.length > maxDataPoints) {
+            chart.data.datasets[index].data.shift();
+        }
+    });
+    if (chart.data.labels.length > maxDataPoints) {
+        chart.data.labels.shift();
+    }
+    chart.update();
+}
+
 $(document).ready(function() {
     $('#global-refresh-rate').on('input', function() {
         setGlobalRefreshRate(parseInt($(this).val()));
@@ -163,4 +244,12 @@ $(document).ready(function() {
 
     updateGlobalRefreshRateDisplay();
     addPatientPanel(); // Ajoute un premier patient par défaut
+
+    initChart();
+    
+    $('#dataTabs button').on('shown.bs.tab', function (e) {
+        if (e.target.id === 'graph-tab') {
+            chart.resize();
+        }
+    });
 });
