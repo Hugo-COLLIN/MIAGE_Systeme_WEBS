@@ -1,14 +1,16 @@
+from flask import Flask, render_template, Response, stream_with_context, jsonify
+from datetime import datetime
 import os
 import signal
 import subprocess
 
-from flask import Flask, render_template, Response, stream_with_context, jsonify
-
 app = Flask(__name__)
+
 
 @app.route('/')
 def index():
     return render_template('index.html')
+
 
 @app.route('/data/<int:patient_id>/<int:activity>/<int:refresh_rate>')
 def stream_data(patient_id, activity, refresh_rate):
@@ -47,9 +49,11 @@ def stream_data(patient_id, activity, refresh_rate):
 
     return Response(stream_with_context(generate()), mimetype='text/event-stream')
 
+
 @app.route('/check_connection')
 def check_connection():
-    return jsonify({"status": "connected"})
+    return jsonify({"status": "connected", "timestamp": datetime.now().isoformat()})
+
 
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0', threaded=True)

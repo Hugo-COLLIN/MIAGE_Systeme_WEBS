@@ -1,4 +1,7 @@
 let eventSources = {};
+let reconnectAttempts = {};
+const MAX_RECONNECT_ATTEMPTS = 5;
+const RECONNECT_DELAY = 5000;
 
 function startPatientStream(patientNum) {
   stopPatientStream(patientNum);
@@ -10,6 +13,7 @@ function startPatientStream(patientNum) {
 
   const eventSource = new EventSource(`/data/${patientId}/${activityId}/${refreshRate}`);
   eventSources[patientNum] = eventSource;
+  reconnectAttempts[patientNum] = 0;
 
   eventSource.onmessage = function (event) {
     if (event.data.startsWith("ERROR:")) {
@@ -47,6 +51,13 @@ function startPatientStream(patientNum) {
     console.error("EventSource failed:", event);
     $('#common-data-container').append(`<p class="text-danger">Erreur de connexion pour le patient ${patientId}</p>`);
     stopPatientStream(patientNum);
+
+    if (reconnectAttempts[patientNum] < MAX_RECONNECT_ATTEMPTS) {
+      reconnectAttempts[patientNum]++;
+      setTimeout(() => startPatientStream(patientNum), RECONNECT_DELAY);
+    } else {
+      console.error(`Échec de la reconnexion après ${MAX_RECONNECT_ATTEMPTS} tentatives pour le patient ${patientId}`);
+    }
   };
 }
 
@@ -76,12 +87,13 @@ function checkServerConnection() {
     method: 'GET',
     timeout: 5000,
     success: function(response) {
-      console.log(`Serveur en fonctionnement (Time: ${Date.now()})`);
+      console.log(`Serveur en fonctionnement (Server Time: ${response.timestamp})`);
     },
     error: function(xhr, status, error) {
-      console.error(`Impossible d'établir une connexion avec le serveur (Time: ${Date.now()})`, error);
-      $('#common-data-container').append(`<p class="text-danger">Impossible d'établir une connexion avec le serveur</p>`);
+      console.error(`Impossible d'établir une connexion avec le serveur (Local Time: ${new Date(Date.now()).toISOString()})`, error);
+      $('#common-data-container').append(`<p class="text-danger">Impossible d'établir une connexion avec le serveur (Local Time: ${new Date(Date.now()).toISOString()})</p>`);
       stopAllStreams();
+      setTimeout(checkServerConnection, RECONNECT_DELAY);
     }
   });
 }
