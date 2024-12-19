@@ -33,17 +33,14 @@ void setIterationIndex(std::string fname){
 
 // Lecture de l'index et activité
 void getIterationIndex(std::string fname){
-
-    my_activity = 0;
-    my_index = 1;
     std::stringstream ss;
     ss << dirPrefix << "/index/" << fname << "_activity"<< my_activity << ".idx";
     std::string filename = ss.str();
 
-    // creating an ifstream object named file
+    // création d’un object ifstream
     std::ifstream ifile;
 
-    // opening the file
+    // ouverture du fichier
     ifile.open(filename);
 
     if (ifile){
