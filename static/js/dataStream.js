@@ -69,3 +69,19 @@ function stopAllStreams() {
     stopPatientStream(patientNum);
   }
 }
+
+function checkServerConnection() {
+  $.ajax({
+    url: '/check_connection',
+    method: 'GET',
+    timeout: 5000,
+    success: function(response) {
+      console.log(`Serveur en fonctionnement (Time: ${Date.now()})`);
+    },
+    error: function(xhr, status, error) {
+      console.error(`Impossible d'établir une connexion avec le serveur (Time: ${Date.now()})`, error);
+      $('#common-data-container').append(`<p class="text-danger">Impossible d'établir une connexion avec le serveur</p>`);
+      stopAllStreams();
+    }
+  });
+}
