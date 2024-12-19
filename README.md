@@ -6,7 +6,7 @@ TODO
 
 ## Guide de démarrage
 ### 1. Préparation générale
-1. Mettre à jour l'environnement :
+1. Mettre à jour l'environnement (Linux uniquement) :
 ```sh
 sudo apt update
 sudo apt upgrade -y
@@ -15,10 +15,7 @@ sudo apt upgrade -y
 sudo apt --fix-broken install
 ```
 
-2. Installer Git
-```sh
-sudo apt install git
-```
+2. [Installer Git](https://git-scm.com/downloads)
 
 3. [Initialiser sa clé SSH liée à GitHub](https://gist.github.com/Hugo-COLLIN/456fd191689c11a59e76a66d3ad887d8)
 
