@@ -1,0 +1,16 @@
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    develop:
+      watch:
+        - action: sync
+          path: .
+          target: /app
+        - action: rebuild
+          path: requirements.txt
+        - action: sync+restart
+          path: daemon.cpp
+          target: /app/daemon.cpp
+    command: sh -c "make && python3 run.py"
