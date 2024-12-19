@@ -12,6 +12,13 @@ function startPatientStream(patientNum) {
   eventSources[patientNum] = eventSource;
 
   eventSource.onmessage = function (event) {
+    if (event.data.startsWith("ERROR:")) {
+      console.error(event.data);
+      $('#common-data-container').append(`<p class="text-danger">${event.data}</p>`);
+      stopPatientStream(patientNum);
+      return;
+    }
+
     const data = event.data.split(',');
     const selectedSensors = panel.find('.sensor-checkbox:checked').map(function () {
       return $(this).val();
@@ -34,6 +41,12 @@ function startPatientStream(patientNum) {
 
       updateChart(patientId, filteredData, selectedSensors);
     }
+  };
+
+  eventSource.onerror = function(event) {
+    console.error("EventSource failed:", event);
+    $('#common-data-container').append(`<p class="text-danger">Erreur de connexion pour le patient ${patientId}</p>`);
+    stopPatientStream(patientNum);
   };
 }
 
