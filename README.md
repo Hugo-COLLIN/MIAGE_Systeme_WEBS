@@ -5,8 +5,8 @@
 TODO
 
 ## Guide de démarrage
-### 1. Préparation générale
-1. Mettre à jour l'environnement (Linux uniquement) :
+### 1. Prérequis
+1. Avoir son environnement à jour (Linux uniquement) :
 ```sh
 sudo apt update
 sudo apt upgrade -y
@@ -15,11 +15,11 @@ sudo apt upgrade -y
 sudo apt --fix-broken install
 ```
 
-2. [Installer Git](https://git-scm.com/downloads)
+2. [Avoir installé Git](https://git-scm.com/downloads)
 
-3. [Initialiser sa clé SSH liée à GitHub](https://gist.github.com/Hugo-COLLIN/456fd191689c11a59e76a66d3ad887d8)
+3. [Avoir initialisé sa clé SSH liée à GitHub](https://gist.github.com/Hugo-COLLIN/456fd191689c11a59e76a66d3ad887d8)
 
-4. [Installer Docker et Docker Compose](https://docs.docker.com/get-started/get-docker)
+4. [Avoir installé Docker et Docker Compose](https://docs.docker.com/get-started/get-docker)
 
 5. Cloner le dépôt :
 ```sh
