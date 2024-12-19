@@ -20,9 +20,9 @@ sudo apt --fix-broken install
 sudo apt install git
 ```
 
-3. [Installer Docker et Docker Compose](https://docs.docker.com/get-started/get-docker)
+3. [Initialiser sa clé SSH liée à GitHub](https://gist.github.com/Hugo-COLLIN/456fd191689c11a59e76a66d3ad887d8)
 
-4. [Initialiser sa clé SSH liée à GitHub](https://gist.github.com/Hugo-COLLIN/456fd191689c11a59e76a66d3ad887d8)
+4. [Installer Docker et Docker Compose](https://docs.docker.com/get-started/get-docker)
 
 5. Cloner le dépôt :
 ```sh
@@ -47,7 +47,7 @@ docker-compose up --watch
 
 3. Ouvrir le navigateur à l'adresse : `http://localhost:5000`
 
-Pour arrêter l'application, utilisez `Ctrl+C` dans le terminal où vous avez lancé `docker-compose up`, puis exécutez :
+Pour arrêter l'application, utiliser `Ctrl+C` dans le terminal où a été lancé `docker-compose up`, puis exécuter :
 ```sh
 docker-compose down
 ```
