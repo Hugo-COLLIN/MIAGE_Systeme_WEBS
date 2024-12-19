@@ -3,6 +3,15 @@ let reconnectAttempts = {};
 const MAX_RECONNECT_ATTEMPTS = 5;
 const RECONNECT_DELAY = 5000;
 
+function displayError(message) {
+  // Afficher une alerte en haut de la page
+  $('#error-alert').remove(); // Supprimer l'alerte précédente s'il y en a une
+  $('body').prepend(`<div id="error-alert" class="alert alert-danger alert-dismissible fade show" role="alert">
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>`);
+}
+
 function startPatientStream(patientNum) {
   stopPatientStream(patientNum);
 
@@ -18,7 +27,7 @@ function startPatientStream(patientNum) {
   eventSource.onmessage = function (event) {
     if (event.data.startsWith("ERROR:")) {
       console.error(event.data);
-      $('#common-data-container').append(`<p class="text-danger">${event.data}</p>`);
+      displayError(event.data);
       stopPatientStream(patientNum);
       return;
     }
@@ -49,7 +58,9 @@ function startPatientStream(patientNum) {
 
   eventSource.onerror = function(event) {
     console.error("EventSource failed:", event);
-    $('#common-data-container').append(`<p class="text-danger">Erreur de connexion pour le patient ${patientId}</p>`);
+    const errorMessage = `Erreur de connexion pour le patient ${patientId}`;
+    $('#common-data-container').append(`<p class="text-danger">${errorMessage}</p>`);
+    displayError(errorMessage);
     stopPatientStream(patientNum);
 
     if (reconnectAttempts[patientNum] < MAX_RECONNECT_ATTEMPTS) {
@@ -57,6 +68,7 @@ function startPatientStream(patientNum) {
       setTimeout(() => startPatientStream(patientNum), RECONNECT_DELAY);
     } else {
       console.error(`Échec de la reconnexion après ${MAX_RECONNECT_ATTEMPTS} tentatives pour le patient ${patientId}`);
+      displayError(`Échec de la reconnexion après ${MAX_RECONNECT_ATTEMPTS} tentatives pour le patient ${patientId}`);
     }
   };
 }
@@ -91,7 +103,7 @@ function checkServerConnection() {
     },
     error: function(xhr, status, error) {
       console.error(`Impossible d'établir une connexion avec le serveur (Local Time: ${new Date(Date.now()).toISOString()})`, error);
-      $('#common-data-container').append(`<p class="text-danger">Impossible d'établir une connexion avec le serveur (Local Time: ${new Date(Date.now()).toISOString()})</p>`);
+      displayError(`Impossible d'établir une connexion avec le serveur (Local Time: ${new Date(Date.now()).toISOString()})`);
       stopAllStreams();
       setTimeout(checkServerConnection, RECONNECT_DELAY);
     }
