@@ -4,7 +4,7 @@ FROM ubuntu:22.04
 # Éviter les prompts interactifs pendant l'installation
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Installer Python 3.9 et les dépendances nécessaires
+# Installer Python 3.10 et les dépendances nécessaires
 RUN apt-get update && apt-get install -y \
     python3.10 \
     python3.10-dev \
@@ -12,8 +12,10 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Le reste de votre Dockerfile reste identique
+# Définir le répertoire de travail
 WORKDIR /app
+
+# Copier les fichiers nécessaires
 COPY requirements.txt .
 COPY run.py .
 COPY daemon.cpp .
@@ -22,8 +24,9 @@ COPY templates/ ./templates/
 COPY static/ ./static/
 COPY sensor.example/ ./sensor/
 
+# Installer les dépendances Python
 RUN pip3 install --no-cache-dir -r requirements.txt
-RUN make
 
 EXPOSE 5000
-CMD ["python3", "run.py"]
+
+# La commande sera définie dans docker-compose.yml
