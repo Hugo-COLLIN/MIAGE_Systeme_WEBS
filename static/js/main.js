@@ -51,4 +51,5 @@ $(document).ready(function() {
     });
 
     addPatientPanel(); // Ajoute un premier patient par défaut
+    setInterval(checkServerConnection, 30000); // Vérifier la connexion toutes les 30 secondes
 });
