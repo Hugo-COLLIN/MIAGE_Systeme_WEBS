@@ -1,8 +1,12 @@
-# WEBS Application
+# Projet WEBS - Visualisation de données de santé
 **Hugo COLLIN, Chloé MAYER, Anikati M'MADI**
 
 ## Description
-TODO
+Le projet WEBS (Visionneuse Web de Données de Santé) vise à développer une application web permettant aux professionnels de santé de visualiser en temps réel les données provenant de capteurs portés par les patients. Cette solution s'inscrit dans le contexte de la santé connectée, où la surveillance continue des patients nécessite des outils de visualisation performants et fiables.
+
+Dans ce projet, l’application web s’articule autour d’une architecture client-serveur. L'application doit gérer la visualisation simultanée des données de plusieurs patients, avec un système flexible de sélection des capteurs et un contrôle précis du taux de rafraîchissement. Le projet intègre des composants hétérogènes (C++, Python, JavaScript) qui doivent communiquer efficacement pour assurer une expérience utilisateur fluide.
+
+Voir le rapport de projet pour plus de détails.
 
 ## Guide de démarrage avec Docker
 ### 1. Prérequis
