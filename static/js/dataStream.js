@@ -77,7 +77,7 @@ function startPatientStream(patientNum) {
     let filteredData = data.filter((value, index) => selectedSensors.includes(Object.keys(sensorTypes)[index]));
 
     if (filteredData.length > 0) {
-      const formattedData = `Patient ${patientId}: ${filteredData.join(', ')}`;
+      const formattedData = `Patient ${patientId} - Activité ${activityId} : ${filteredData.join(', ')}`;
       $('#common-data-container').append(`<p>${formattedData}</p>`);
 
       // Limiter le nombre de lignes affichées dans le conteneur de texte
